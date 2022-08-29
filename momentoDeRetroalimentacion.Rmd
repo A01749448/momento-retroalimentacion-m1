@@ -1,0 +1,253 @@
+---
+title: "Momento de Retroalimentación (Portafolio Análisis)"
+subtitle: "Módulo 1: Técnicas de procesamiento de datos para el análisis estadístico y para la construcción de modelos"
+author: "Jorge Chávez Badillo A01749448"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+
+---
+
+## Preguntas Guía
+
+1. ¿Cuál es el salario al que pueda aspirar un analista de datos?
+2. ¿En qué países se ofrecen mejores salarios?
+3. ¿Se han incrementado los salarios a lo largo del tiempo?
+4. ¿Influye el nivel de experiencia en el salario?
+5. ¿Influye el tamaño de la compañía en el salario que puede ofrecer a un analista de datos?
+6. ¿Qué tipo de contrato (parcial, tiempo completo, etc) ofrece mejores salarios? ¿Qué tipo de contrato será el más conveniente?
+7. Otras más que creas que se pueden contestar a partir de la base de datos.
+
+## Exploración de la Base de Datos
+
+### Acceder al la base de datos Data Science Job Salaries
+
+```{r}
+# Lectura de la base de datos
+db_salaries = read.csv("ds_salaries.csv")
+```
+
+### Exploración de variables
+
+```{r}
+n_variables = length(db_salaries)
+n_rows = nrow(db_salaries)
+
+salaries_usd = db_salaries$salary_in_usd
+job_title = db_salaries$job_title
+company_size = db_salaries$company_size
+experience_level = db_salaries$experience_level
+job_modality = db_salaries$remote_ratio
+country = db_salaries$company_location
+
+sprintf("Número de Variables: %s", n_variables)
+sprintf("Número de Registros: %s", n_rows)
+```
+
+### Exploración de la base de datos 
+
+#### 1. Medidas Estadísticas
+
+a. Variables Cuantitativas:
+
+  - Medidas de Tendencia Central
+  
+```{r}
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Salarios 
+mean_salaries_usd = mean(salaries_usd)
+median_salaries_usd = median(salaries_usd)
+mode_salaries_usd = getmode(salaries_usd)
+sprintf("Promedio Salarios: %s", mean_salaries_usd)
+sprintf("Mediana Salarios: %s", median_salaries_usd)
+sprintf("Moda Salarios: %s", mode_salaries_usd)
+
+# Modalidad de Trabajo
+mean_job_modality = mean(job_modality)
+median_job_modality = median(job_modality)
+mode_job_modality = getmode(job_modality)
+sprintf("Promedio Modalidad: %s", mean_job_modality)
+sprintf("Mediana Modalidad: %s", median_job_modality)
+sprintf("Moda Modalidad: %s", mode_job_modality)
+```
+  
+  - Medidas de Dispersión
+  
+```{r}
+# Salarios 
+max_salaries_usd = max(salaries_usd)
+min_salaries_usd = min(salaries_usd)
+sd_salaries_usd = sd(salaries_usd)
+var_salaries_usd = var(salaries_usd)
+sprintf("Máximo Salarios: %s", max_salaries_usd)
+sprintf("Mínimo Salarios: %s", min_salaries_usd)
+sprintf("Desviación Estándar Salarios: %s", sd_salaries_usd)
+sprintf("Varianza Salarios: %s", var_salaries_usd)
+
+# Modalidad de Trabajo
+max_job_modality = max(job_modality)
+min_job_modality = min(job_modality)
+sd_job_modality = sd(job_modality)
+var_job_modality = var(job_modality)
+sprintf("Máximo Modalidad: %s", max_job_modality)
+sprintf("Mínimo Modalidad: %s", min_job_modality)
+sprintf("Desviación Estándar Modalidad: %s", sd_job_modality)
+sprintf("Varianza Modalidad: %s", var_job_modality)
+```
+
+
+b. Variables Cualitativas:
+
+```{r}
+job_title_table = table(job_title)
+print("Tabla de Distribución de Frecuencia de los Puestos de Trabajo: ")
+job_title_table
+sorted_table = sort(job_title_table, decreasing = TRUE)
+par(mar = c(5.1, 10.1, 4.1, 2.1))
+barplot(sorted_table, width = 1, cex.names = 0.6, col = c("cadetblue", "azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Frecuencia de los Puestos de Trabajo", xlab = "Frecuencia", horiz = TRUE, las = 2)
+```
+
+```{r}
+job_title_table = table(job_title)
+print("Tabla de Distribución de Frecuencia de los 5 Puestos de Trabajo: ")
+sorted_table = sort(job_title_table, decreasing = TRUE)[1:5]
+sorted_table
+barplot(sorted_table, width = 1, cex.names = 0.6, col = c("cadetblue", "azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Top 5 Puestos de Trabajo con Mayor Frecuencia", xlab = "Puestos de Trabajo", ylab = "Frecuencia")
+mode_job_title = sort(job_title_table, decreasing = TRUE)[1:1]
+print("Moda de los Puestos de Trabajo")
+mode_job_title
+```
+
+```{r}
+experience_level_table = table(experience_level)
+print("Tabla de Distribución de Frecuencia del Nivel de Experiencia: ")
+experience_level_table
+sorted_table = sort(experience_level_table, decreasing = TRUE)
+barplot(sorted_table, width = 1, cex.names = 1, col = c("azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Frecuencias del Nivel de Experiencia", xlab = "Nivel de Experiencia", ylab = "Frecuencia")
+pie(sorted_table, main = "Gráfico de Pastel sobre el Nivel de Experiencia", col = c("cadetblue", "azure2", "darkseagreen2", "khaki1", "lightcoral"))
+mode_experience_level = sort(experience_level, decreasing = TRUE)[1:1]
+print("Moda del Nivel de Experiencia")
+mode_experience_level
+```
+
+```{r}
+country_table = table(country)
+print("Tabla de Distribución de Frecuencia del Paises: ")
+country_table
+sorted_table = sort(country_table, decreasing = TRUE)
+barplot(sorted_table, width = 1, cex.names = 0.6, col = c("azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Frecuencias de las Locaciones de las Compañias", xlab = "Frecuencia", horiz = TRUE, las = 2)
+mode_country = sort(country_table, decreasing = TRUE)[1:1]
+print("Moda del Nivel de Experiencia")
+mode_country
+```
+
+
+#### 2. Exploración de Datos Usando Herramientas de Visualización
+
+a. Variables Cuantitativas:
+
+  - Medidas de Posición 
+  
+```{r}
+# Cuartiles Para Salarios
+q1_s = quantile(salaries_usd, 0.25)
+q3_s = quantile(salaries_usd, 0.75)
+rc_s = q3_s - q1_s # Rango intercuartílico
+y2_s = q3_s + 1.5 * rc_s
+# IQR(salaries_usd)
+
+# Cuartiles Para Modalidad
+q1_m = quantile(job_modality, 0.25)
+q3_m = quantile(job_modality, 0.75)
+rc_m = q3_m - q1_m # Rango intercuartílico
+y2_m = q3_m + 1.5 * rc_m
+# IQR(job_modality)
+
+par(mfrow = c(2, 1)) 
+
+boxplot(salaries_usd, main = "Boxplot Salarios", horizontal = TRUE, ylim = c(0, y2_s))
+abline(v = y2_s, col="red")
+X_s = db_salaries[salaries_usd < y2_s, c("salary_in_usd")]
+summary(X_s)
+
+boxplot(job_modality, main = "Boxplot Modalidad", horizontal = TRUE, ylim = c(0, y2_m))
+abline(v = y2_m, col="red")
+X_m = db_salaries[job_modality < y2_m, c("remote_ratio")]
+summary(X_m)
+```
+  
+  - Análisis de Distribución de los Datos
+  
+```{r}
+# Salarios
+qqnorm(salaries_usd, main = "Normal Q-Q Plot Salarios")
+qqline(salaries_usd)
+hist(salaries_usd, main = "Histograma de Salarios", prob = TRUE, col = 0)
+x = seq(min(salaries_usd), max(salaries_usd), 0.1)
+y = dnorm(x, mean(salaries_usd), sd(salaries_usd))
+lines(x, y, col = "red")
+```
+
+```{r}
+# Modalidad
+qqnorm(job_modality, main = "Normal Q-Q Plot Modalidad")
+qqline(job_modality)
+hist(job_modality, main = "Histograma de Modalidad", prob = TRUE, col = 0)
+x = seq(min(job_modality), max(job_modality), 0.1)
+y = dnorm(x, mean(job_modality), sd(job_modality))
+lines(x, y, col = "red")
+```
+
+```{r}
+library(moments)
+# Salarios 
+sprintf("Sesgo de Salarios: %s", skewness(salaries_usd))
+sprintf("Curtosis de Salarios: %s", kurtosis(salaries_usd))
+# Modalidad 
+sprintf("Sesgo de Salarios: %s", skewness(job_modality))
+sprintf("Curtosis de Salarios: %s", kurtosis(job_modality))
+```
+
+### Análisis de Datos y Preguntas Guía Contestadas
+
+1. 
+
+```{r}
+data_analyst_salary = db_salaries[db_salaries$job_title == "Data Analyst", ]
+mean_salary_da = mean(data_analyst_salary$salary_in_usd)
+sprintf("Salario Promedio al que Puede Aspirar un Analista de Datos: $ %s", mean_salary_da)
+```
+
+```{r}
+library(dplyr)
+sorted_db = db_salaries[order(db_salaries$salary_in_usd, decreasing = TRUE), ]
+top_sorted_db = head(sorted_db, 100)
+top_sorted_db = distinct(top_sorted_db, top_sorted_db$company_location, .keep_all = TRUE)
+top_sorted_db
+top_countries = top_sorted_db$company_location
+top = head(unique(top_countries), 5)
+print("Top 5 Países con Mejores Salarios: ")
+top
+x = c(0, 1, 2, 3, 4, 5)#top_sorted_db$company_location
+y = top_sorted_db$salary_in_usd
+plot(x, y)
+```
+
+```{r}
+sorted_db = db_salaries[order(db_salaries$salary_in_usd, decreasing = TRUE), ]
+top_sorted_db = head(sorted_db, 1)
+top_modality = top_sorted_db$remote_ratio
+print("La Modalidad que Cuenta con un Mayor Salario es: ")
+if (top_modality == 100) {
+  print("Modalidad en línea")
+  top_modality
+}
+barplot(table(sorted_db$remote_ratio), width = 1, cex.names = 1, col = c("azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Modalidad de Trabajo", xlab = "Nivel de Experiencia", ylab = "Frecuencia")
+```
+
+
