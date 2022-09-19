@@ -1,15 +1,39 @@
 ---
-title: "Momento de Retroalimentación (Portafolio Análisis)"
-subtitle: "Módulo 1: Técnicas de procesamiento de datos para el análisis estadístico y para la construcción de modelos"
-author: "Jorge Chávez Badillo A01749448"
+title: "Momento de Retroalimentación (Portafolio Análisis): Técnicas de procesamiento de datos para el análisis estadístico y para la construcción de modelos"
+subtitle: "Inteligencia Artificial Avanzada para la Ciencia de Datos Módulo 1: Estadística para la Ciencia de Datos"
+author: "Jorge Chávez Badillo A01749448 Grupo 101"
 date: "`r Sys.Date()`"
 output:
   pdf_document: default
   html_document: default
-
 ---
 
-## Preguntas Guía
+# Salarios
+
+## Resumen
+
+Para este problema se tiene la base de datos ds_salaries, donde se tienen diferentes atributos sobre los salarios de una persona especialista en el análisis de datos tenga un mejor sueldo en las diferentes partes del mundo. Para lo cual se decidió abordar el problema utilizando diferentes herraminetas estadísticas, en primera instancia tenemos el análisis estadístico general para el entendimiento de los datos y posteriormente se tienen unas gráficas de frecuencia, donde obtenemos los puestos de trabajo más populares, lo cual es un aooyo a poder resolver el problema. 
+Algunos de los principales resultados obtenidos fueron que el top 5 de puestos de trabajo tenemos que estos son: Data Scientist, Data Engineer, Data Analyst, Machine Learning Engineer y Research Scientist. Por otro lado, se obtuvieron los niveles de experiencia del dataset, teniendo que la mayoría son Senior-level y Mid-level. 
+
+## Introducción
+
+Para la solución de este momento de retroalimentación sobre los salarios de trabajos en el dominio de Data Science, fue necesario hacer una exploración de los datos para familiarizarse con su significado, la identificación de las variables cuantitativas y cualitativas y también la implementación de herramientas de visualización para poder generar un mejor entendimiento. 
+
+El significado de cada uno de los atributos de la base de datos son los siguientes: 
+
+* *work_year* El año en el que fue pagado el salario.  
+* *experience_level* Nivel de experiencia del puesto de trabajo durante ese año. 
+* *employment_type* Tipo de empleo (tiempo completo, medio tiempo, freelance)
+* *job_title* Nombre del puesto.
+* *salary* Monto del salario. 
+* *salary_currency* Código de cambio. 
+* *salaryinusd* Monto del salario en dólares. 
+* *employee_residence* País. 
+* *remote_ratio* Porcentaje de modalidad en trabajo remoto. 
+* *company_location* Páis de la empresa.
+* *company_size* Promedio de gente que trabajó para la compañia durante ese año. 
+
+### Preguntas Guía
 
 1. ¿Cuál es el salario al que pueda aspirar un analista de datos?
 2. ¿En qué países se ofrecen mejores salarios?
@@ -24,6 +48,7 @@ output:
 ### Acceder al la base de datos Data Science Job Salaries
 
 ```{r}
+knitr::opts_chunk$set(echo = FALSE) 
 # Lectura de la base de datos
 db_salaries = read.csv("ds_salaries.csv")
 ```
@@ -112,6 +137,8 @@ par(mar = c(5.1, 10.1, 4.1, 2.1))
 barplot(sorted_table, width = 1, cex.names = 0.6, col = c("cadetblue", "azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Frecuencia de los Puestos de Trabajo", xlab = "Frecuencia", horiz = TRUE, las = 2)
 ```
 
+En el gráfico anterior se muestran los diferentes puestos de trabajo y su frecuencia en el dataset. 
+
 ```{r}
 job_title_table = table(job_title)
 print("Tabla de Distribución de Frecuencia de los 5 Puestos de Trabajo: ")
@@ -122,6 +149,8 @@ mode_job_title = sort(job_title_table, decreasing = TRUE)[1:1]
 print("Moda de los Puestos de Trabajo")
 mode_job_title
 ```
+
+Para resolver las preguntas base, y para poder brindar mayor información sobre el dataset fue necesario obtener el top 5 de puestos de una manera visual. 
 
 ```{r}
 experience_level_table = table(experience_level)
@@ -135,6 +164,8 @@ print("Moda del Nivel de Experiencia")
 mode_experience_level
 ```
 
+
+
 ```{r}
 country_table = table(country)
 print("Tabla de Distribución de Frecuencia del Paises: ")
@@ -146,6 +177,7 @@ print("Moda del Nivel de Experiencia")
 mode_country
 ```
 
+Gráfico sobre las locaciones de las compañias. 
 
 #### 2. Exploración de Datos Usando Herramientas de Visualización
 
@@ -180,6 +212,8 @@ abline(v = y2_m, col="red")
 X_m = db_salaries[job_modality < y2_m, c("remote_ratio")]
 summary(X_m)
 ```
+ 
+De acuerdo con los boxplots podemos observar que no existe una cantidad relevante de valores atípicos dentro de las variables utilizadas, pero si es posible identificar que se tienen sesgos muy aproximados a la simetría para salarios y para la modalidad se observa un sesgo hacia la izquierda. 
   
   - Análisis de Distribución de los Datos
   
@@ -192,6 +226,8 @@ x = seq(min(salaries_usd), max(salaries_usd), 0.1)
 y = dnorm(x, mean(salaries_usd), sd(salaries_usd))
 lines(x, y, col = "red")
 ```
+De acuerdo con la gráfica de normalidad podemos observar que esta tiene un comportamiento aproximádamente ideal en su simetría. 
+
 
 ```{r}
 # Modalidad
@@ -203,15 +239,21 @@ y = dnorm(x, mean(job_modality), sd(job_modality))
 lines(x, y, col = "red")
 ```
 
+Gracias a las gráficas podemos observar que la gráfica de normalidad cuenta con un sesgo hacia la izquierda ya que los datos se encuentran ligeramente recargados hacia la derecha.
+
 ```{r}
 library(moments)
 # Salarios 
 sprintf("Sesgo de Salarios: %s", skewness(salaries_usd))
 sprintf("Curtosis de Salarios: %s", kurtosis(salaries_usd))
 # Modalidad 
-sprintf("Sesgo de Salarios: %s", skewness(job_modality))
-sprintf("Curtosis de Salarios: %s", kurtosis(job_modality))
+sprintf("Sesgo de Modalidad: %s", skewness(job_modality))
+sprintf("Curtosis de Modalidad: %s", kurtosis(job_modality))
 ```
+
+De acuerdo con los datos calculados sobre la curtosis y sesgo, podemos observar que para los salarios se tiene un valor muy sesgado a la derecha ya que este es mayor a 0.5 y en la parte de la curtosis, tenemos que esta es leptocúrtica ya que esta es mayor a 0.5. 
+
+Por otro lado, para la parte de modalidades de trabajo, tenemos que el sesgo se encuentra moderadamente sesgada a la izquierda y la curtosis es leptocúrtica ya que se tiene un pico más pronunciado y colas más pesadas. 
 
 ### Análisis de Datos y Preguntas Guía Contestadas
 
@@ -250,4 +292,10 @@ if (top_modality == 100) {
 barplot(table(sorted_db$remote_ratio), width = 1, cex.names = 1, col = c("azure2", "darkseagreen2", "khaki1", "lightcoral"), main = "Modalidad de Trabajo", xlab = "Nivel de Experiencia", ylab = "Frecuencia")
 ```
 
+## Conclusión
 
+Al hacer un análisis de datos tan general, podemos hacer una gran variedad de procedimientos, es por ello que tener una serie de preguntas base nos ayuda mucho a poder encaminar el análisis y así realizar los procedimientos pertinentes para poder responder las preguntas, por ejemplo, en este caso se decidió responder cuál es el top 5 de países con los mejores salarios y se obtuvo que "US" "JP" "RU" "CA" "GB" son los que mejor salario tienen, lo que indica que es muy probable que al tener un trabajo en estos países, los ingresos del empleado serán mayores que si fuera en otros países, por otro lado, también tenemos que salario promedio al que puede aspirar un analista de datos: $ 92893.0618556701, lo cual es un salario bastante alto, lo que indica que las carreras relacionadas a data science reciben buenos salarios. 
+
+## Anexos
+
+Liga de Github: https://github.com/A01749448/momento-retroalimentacion-m1.git 
